@@ -1,11 +1,11 @@
 # group_submission2
 
 ## Relevant Links
-Task Description: 
+Task Description: \
 https://tucloud.tuwien.ac.at/index.php/s/F8dfE2NSMiFWiYa \
-Figma Board for Dashboard: 
+Figma Board for Dashboard: \
 https://www.figma.com/board/emeB0pZ7HJUEVaoJKmDlfR/IV-1?node-id=0-1&t=xOXwW5oUSuVmPq9p-1 
-Link to Dashboard Definition: 
+Link to Dashboard Definition: \
 https://tucloud.tuwien.ac.at/index.php/s/F8dfE2NSMiFWiYa?openfile=true  
 
 ## Project Architecture
