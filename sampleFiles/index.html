@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Gender Pay Gap | D3.js Tutorial</title>
+	<link rel="stylesheet" type="text/css" href="./style.css">
+</head>
+<body>
+	<div class="responsive-svg-container" id="form">
+		<label for="yearSlider">Year</label>
+		<input id="yearSlider" type="range" value="2020" min="2010" max="2020" oninput="yearText.value=yearSlider.value" />
+		<input id="yearText" type="number" value="2020" min="2010" max="2020" oninput="yearSlider.value=yearText.value" disabled />
+		
+		<label for="sort" style="margin-left:30px">Sort by</label>
+		<select name="sort" id="sort">
+			<option value="alphabet">Alphabetical</option>
+			<option value="pctAsce">Percentage of pay gap, ascending</option>
+			<option value="pctDesc">Percentage of pay gap, descending</option>
+		</select>
+	</div>
+	<div id="bar" class="responsive-svg-container"></div>
+	<div id="line"class="responsive-svg-container"></div>
+	
+	<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+	<script src="./script.js"></script>
+</body>
+</html>
