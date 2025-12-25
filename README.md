@@ -1,7 +1,7 @@
 # group_submission2
 
 ## Deadline
-Friday, 16. Januar 2026, 23:55 
+Friday, 16. January 2026, 23:55 
 
 ## Relevant Links
 Task Description: \
