@@ -9,8 +9,8 @@ https://tucloud.tuwien.ac.at/index.php/s/F8dfE2NSMiFWiYa \
 Figma Board for Dashboard: \
 https://www.figma.com/board/emeB0pZ7HJUEVaoJKmDlfR/IV-1?node-id=0-1&t=xOXwW5oUSuVmPq9p-1 \
 Dashboard Definition: \
-https://docs.google.com/document/d/1fxRt_suC9jMoF1jn1ENm0vW6ziNqukjdaqNaj49NkGk/edit?usp=sharing
-Github Pages:
+https://docs.google.com/document/d/1fxRt_suC9jMoF1jn1ENm0vW6ziNqukjdaqNaj49NkGk/edit?usp=sharing \
+Github Pages: \
 https://leonardo-maxim-krischker.github.io/InfoVis-GroupSubmission2/
 
 ## Project Architecture
