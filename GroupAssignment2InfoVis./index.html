@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>US Traffic Accidents (2019–2023)</title>
+
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- D3 + TopoJSON -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
+</head>
+
+<body>
+  <header class="header">
+    <div>
+      <h1>US Traffic Accidents (2019–2023) — Interactive Choropleth</h1>
+      <p class="sub">
+        Hover for details · Click a state to pin · Zoom/Pan enabled · Gray = missing / no data
+      </p>
+    </div>
+
+    <div class="controls" id="controls">
+      <label class="control">
+        <span>Metric</span>
+        <select id="metricSelect"></select>
+      </label>
+
+      <label class="control">
+        <span>Region</span>
+        <select id="regionSelect"></select>
+      </label>
+
+      <label class="control">
+        <span>Search</span>
+        <input id="stateSearch" type="text" placeholder="e.g., CA or California" />
+      </label>
+
+      <button id="clearBtn" class="btn">Clear</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="chart"></div>
+
+    <aside class="side">
+      <div class="card">
+        <h2>Selected state</h2>
+        <div id="selectedBox" class="selectedBox">
+          <div class="muted">Click a state on the map to pin it here.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Legend</h2>
+        <div id="legend"></div>
+      </div>
+    </aside>
+  </main>
+
+  <div id="tooltip" class="tooltip" style="opacity:0;"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
