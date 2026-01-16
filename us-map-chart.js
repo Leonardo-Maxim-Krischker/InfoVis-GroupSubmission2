@@ -143,7 +143,7 @@ function updateMapVisuals(stateStats, selectedStatesSet) {
 
 // Internal Helpers
 function renderLegend(colorScale, label, min, max, fmt) {
-    const div = document.getElementById("legend");
+    const div = document.getElementById("legend"); // Matches new HTML ID
     if (!div) return;
     
     div.innerHTML = "";

@@ -15,27 +15,38 @@
     <div>
       <h1>US Traffic Accidents Analysis (2019-2023)</h1>
       <p class="sub">
-        Filter by Year &rarr; Click State to Filter Details &rarr; Hover for Info
+        Team members: Gjini Marin, Krischker Leonardo Maxim, Savin Vasili
       </p>
     </div>
+  </header>
 
-    <div class="controls">
-        <label class="control">
-            <span>Selected Year: <strong id="yearDisplay">2021</strong></span>
-            <input type="range" id="yearSlider" min="2019" max="2023" step="1" value="2021" style="width: 200px;">
-        </label>
+  <main class="dashboard-grid">
+    
+    <div class="card" id="map-container" style="padding: 0; overflow: hidden; position: relative;">
+      <div id="legend" class="map-legend-overlay"></div>
+      <div id="chart" style="width: 100%; height: 100%; border: none;"></div>
+    </div>
 
-        <label class="control">
-            <span>Weather Condition</span>
-            <select id="weatherSelect" style="width: 160px;">
-                <option value="All">All Conditions</option>
-            </select>
-        </label>
+    <div class="card control-panel">
+      
+      <div class="panel-split">
+        
+        <div class="panel-section filters-section">
+          <h2>Dashboard Filters</h2>
+          
+          <div class="control-group">
+            <label>Date Range</label>
+            <div class="date-inputs">
+                <input type="date" id="dateStart">
+                <span>-</span>
+                <input type="date" id="dateEnd">
+            </div>
+          </div>
 
-        <label class="control">
-            <span>Region Grouping</span>
-            <select id="regionSelect" style="width: 180px;">
-                <option value="Manual">Manual Selection</option>
+          <div class="control-group">
+            <label>Region Grouping</label>
+            <select id="regionSelect" style="width: 100%;">
+                <option value="Manual">Manual (Click Map)</option>
                 <option disabled>--- Standard Federal ---</option>
                 <option value="Region 1">Region 1 (New England)</option>
                 <option value="Region 2">Region 2 (NY/NJ)</option>
@@ -53,40 +64,41 @@
                 <option value="MAASTO">Midwest (MAASTO)</option>
                 <option value="WASHTO">West (WASHTO)</option>
             </select>
-        </label>
+          </div>
 
-        <label class="control">
-            <span>Map Metric</span>
-            <select id="metricSelect"></select>
-        </label>
-    </div>
-  </header>
+          <div class="control-group">
+            <label>Weather Conditions</label>
+            <select id="weatherSelect" style="width: 100%;">
+                <option value="" disabled selected>+ Add Condition...</option>
+            </select>
+            <div id="weatherTags"></div> 
+            <div class="muted" style="font-size: 10px; margin-top: 2px;">Select to add, click tag to remove.</div>
+          </div>
 
-  <main class="wrap">
-    <div id="map-section">
-      <div id="chart"></div> <aside class="side">
-        <div class="card">
-          <h2>Selected Region</h2>
-          <div id="selectedBox" class="selectedBox">
-            <div class="muted">Click a state on the map to pin it here and filter the charts below.</div>
+          <div class="control-group">
+            <label>Map Color Metric</label>
+            <select id="metricSelect" style="width: 100%;"></select>
           </div>
         </div>
 
-        <div class="card">
-          <h2>Map Legend</h2>
-          <div id="legend"></div>
+        <div class="panel-section info-section">
+          <h2>Selected Region</h2>
+          <div id="selectedBox" class="selectedBox">
+            <div class="muted">Click a state on the map to see details.</div>
+          </div>
         </div>
-      </aside>
+
+      </div>
     </div>
 
-    <div id="details-section">
-      <div class="card detail-chart" id="bar-chart">
-        <h2>Accidents by Weather & Severity</h2>
-        </div>
-      <div class="card detail-chart" id="line-chart">
-        <h2>Monthly Trend (Selected Region)</h2>
-        </div>
+    <div class="card detail-chart" id="bar-chart">
+      <h2>Accidents by Weather & Severity</h2>
     </div>
+
+    <div class="card detail-chart" id="line-chart">
+      <h2>Monthly Trend (Selected Region)</h2>
+    </div>
+
   </main>
 
   <div id="tooltip" class="tooltip" style="opacity:0;"></div>
