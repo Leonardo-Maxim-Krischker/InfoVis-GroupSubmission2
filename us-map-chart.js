@@ -1,12 +1,13 @@
 /**
  * US Map Component (Reusable)
+ * Handles TopoJSON rendering and multi-state highlighting.
  */
 
 // Internal State
 let svg, g, projection, path;
 let statesGeo = [];
 let mapMetric = "accidents"; 
-let onStateClickCallback = null; // Callback function
+let onStateClickCallback = null; 
 
 // Configuration
 const METRICS = [
@@ -40,33 +41,37 @@ async function initMap(containerId, clickCallback) {
     statesGeo = topojson.feature(us, us.objects.states).features;
 
     const container = d3.select(containerId);
-    const width = 900;
-    const height = 550;
+    
+    // Ensure the container is empty before appending to avoid duplicates on reload
+    container.selectAll("svg").remove();
 
     svg = container.append("svg")
-      .attr("viewBox", `0 0 ${width} ${height}`)
+      .attr("viewBox", `0 0 980 560`)
       .style("width", "100%")
       .style("height", "100%");
 
     g = svg.append("g");
 
-    projection = d3.geoAlbersUsa().translate([width / 2, height / 2]).scale(1100);
+    projection = d3.geoAlbersUsa().translate([980 / 2, 560 / 2]).scale(1100);
     path = d3.geoPath().projection(projection);
 
     svg.call(d3.zoom().scaleExtent([1, 8]).on("zoom", (event) => g.attr("transform", event.transform)));
 
-    // Setup Dropdown
+    // Setup Map Metric Dropdown
     const sel = document.getElementById("metricSelect");
-    sel.innerHTML = METRICS.map(m => `<option value="${m.key}">${m.label}</option>`).join("");
-    sel.addEventListener("change", () => {
-        mapMetric = sel.value;
-        // Trigger generic update event so Manager knows to refresh map visuals
-        d3.select("body").dispatch("mapMetricChanged"); 
-    });
+    if (sel) {
+        sel.innerHTML = METRICS.map(m => `<option value="${m.key}">${m.label}</option>`).join("");
+        sel.addEventListener("change", () => {
+            mapMetric = sel.value;
+            // Trigger update in manager
+            d3.select("body").dispatch("mapMetricChanged"); 
+        });
+    }
 }
 
 // 2. Update Map Visuals (Called by Manager)
-function updateMapVisuals(stateStats, selectedStateAbbr) {
+// Accepts stateStats (Map) and selectedStatesSet (Set of strings)
+function updateMapVisuals(stateStats, selectedStatesSet) {
     const metricDef = METRICS.find(m => m.key === mapMetric);
     
     // Calculate Color Scale
@@ -77,9 +82,6 @@ function updateMapVisuals(stateStats, selectedStateAbbr) {
     // Update Legend
     renderLegend(color, metricDef.label, color.domain()[0], color.domain()[1], metricDef.format);
     
-    // Update Side Box
-    updateSelectedBox(selectedStateAbbr, stateStats.get(selectedStateAbbr));
-
     // Draw/Update States
     g.selectAll("path.state")
         .data(statesGeo, d => d.id)
@@ -94,6 +96,8 @@ function updateMapVisuals(stateStats, selectedStateAbbr) {
         .on("mousemove", (event, d) => {
             const abbr = fipsToAbbr[d.id];
             const s = stateStats.get(abbr);
+            const isSelected = selectedStatesSet.has(abbr);
+            
             const tooltip = d3.select("#tooltip");
             
             tooltip.style("opacity", 1)
@@ -104,7 +108,7 @@ function updateMapVisuals(stateStats, selectedStateAbbr) {
                     <div class="muted">${regionOf(abbr)}</div>
                     <hr style="margin:5px 0; border:0; border-top:1px solid #eee;">
                     <div>${metricDef.label}: <strong>${s ? metricDef.format(s[mapMetric]) : "N/A"}</strong></div>
-                    ${abbr === selectedStateAbbr ? '<div style="color:blue; font-size:10px; margin-top:5px;">(Selected)</div>' : '<div class="muted" style="font-size:10px; margin-top:5px;">Click to toggle filter</div>'}
+                    ${isSelected ? '<div style="color:#2563eb; font-weight:bold; font-size:10px; margin-top:5px;">● Selected</div>' : '<div class="muted" style="font-size:10px; margin-top:5px;">Click to select</div>'}
                 `);
         })
         .on("mouseout", () => d3.select("#tooltip").style("opacity", 0))
@@ -113,25 +117,37 @@ function updateMapVisuals(stateStats, selectedStateAbbr) {
             const abbr = fipsToAbbr[d.id];
             const s = stateStats.get(abbr);
             
-            // Visual Logic:
-            // 1. If no data -> Grey
-            // 2. If a state IS selected and this isn't it -> Fade out (light grey)
-            // 3. Otherwise -> Use Color Scale
+            // 1. Missing Data logic
             if (!s) return "#e5e7eb";
-            if (selectedStateAbbr && abbr !== selectedStateAbbr) return "#eee"; 
             
+            // 2. Highlighting logic
+            // If the set has items, and this state is NOT in it -> Fade it out
+            if (selectedStatesSet.size > 0 && !selectedStatesSet.has(abbr)) {
+                return "#f3f4f6"; // Very light grey
+            }
+            
+            // 3. Otherwise show data color
             return color(s[mapMetric]);
         })
-        .attr("stroke", d => fipsToAbbr[d.id] === selectedStateAbbr ? "#333" : "#fff")
-        .attr("stroke-width", d => fipsToAbbr[d.id] === selectedStateAbbr ? 2 : 0.5);
+        .attr("stroke", d => {
+            const abbr = fipsToAbbr[d.id];
+            // Dark stroke if selected
+            return selectedStatesSet.has(abbr) ? "#1f2937" : "#fff";
+        })
+        .attr("stroke-width", d => {
+            const abbr = fipsToAbbr[d.id];
+            // Thick stroke if selected
+            return selectedStatesSet.has(abbr) ? 2 : 0.5;
+        });
 }
 
 // Internal Helpers
 function renderLegend(colorScale, label, min, max, fmt) {
     const div = document.getElementById("legend");
+    if (!div) return;
+    
     div.innerHTML = "";
     
-    // Gradient Bar
     const steps = 20;
     const colors = [];
     for(let i=0; i<steps; i++) colors.push(colorScale(min + (i/(steps-1))*(max-min)));
@@ -141,26 +157,8 @@ function renderLegend(colorScale, label, min, max, fmt) {
     bar.style.background = `linear-gradient(90deg, ${colors.join(",")})`;
     div.appendChild(bar);
     
-    // Labels
     const row = document.createElement("div");
     row.className = "legendRow";
     row.innerHTML = `<span>${fmt(min)}</span><span>${label}</span><span>${fmt(max)}</span>`;
     div.appendChild(row);
-}
-
-function updateSelectedBox(abbr, stats) {
-    const box = document.getElementById("selectedBox");
-    if(!abbr || !stats) {
-        box.innerHTML = `<div class="muted">Click a state on the map to pin it here.</div>`;
-        return;
-    }
-    box.innerHTML = `
-        <h3 style="margin:0;">${abbrToName[abbr]} (${abbr})</h3>
-        <div class="muted" style="margin-bottom:10px;">${regionOf(abbr)}</div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-            <div><strong>Total:</strong><br>${d3.format(",")(stats.accidents)}</div>
-            <div><strong>Night:</strong><br>${d3.format(",")(stats.nightAcc)}</div>
-            <div><strong>Day:</strong><br>${d3.format(",")(stats.dayAcc)}</div>
-        </div>
-    `;
 }
