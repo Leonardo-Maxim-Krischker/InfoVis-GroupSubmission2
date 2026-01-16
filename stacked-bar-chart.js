@@ -1,11 +1,12 @@
 /**
- * Stacked Bar Chart Component (Causal)
+ * Stacked Bar Chart Component
  * Visualizes the breakdown of accident severity across different weather conditions.
  */
 const drawStackedBarChart = (svg, data, colorScale) => {
   const WIDTH = 600;
   const HEIGHT = 350;
-  const MARGINS = { top: 20, right: 20, bottom: 100, left: 60 }; 
+  // [UPDATED] Tighter margins to use more space
+  const MARGINS = { top: 20, right: 10, bottom: 70, left: 45 }; 
 
   svg.selectAll("*").remove();
 
@@ -22,7 +23,7 @@ const drawStackedBarChart = (svg, data, colorScale) => {
   const xScale = d3.scaleBand()
     .domain(data.map(d => d.category))
     .range([MARGINS.left, WIDTH - MARGINS.right])
-    .padding(0.3);
+    .padding(0.2); // Reduced padding slightly for wider bars
 
   const yScale = d3.scaleLinear()
     .domain([0, d3.max(data, d => d.total)]) 
@@ -45,8 +46,6 @@ const drawStackedBarChart = (svg, data, colorScale) => {
       .attr("height", d => yScale(d[0]) - yScale(d[1]))
       .attr("width", xScale.bandwidth())
       .on("mousemove", (event, d) => {
-          // Identify which severity this rect belongs to
-          // d3.select(this.parentNode).datum() gives the layer data (key = severity)
           const severityLevel = d3.select(event.target.parentNode).datum().key;
           const count = d[1] - d[0];
           const total = d.data.total;
@@ -71,6 +70,7 @@ const drawStackedBarChart = (svg, data, colorScale) => {
       });
 
   // 5. Axes
+  // X-Axis
   svg.append("g")
     .attr("transform", `translate(0,${HEIGHT - MARGINS.bottom})`)
     .call(d3.axisBottom(xScale))
@@ -78,15 +78,17 @@ const drawStackedBarChart = (svg, data, colorScale) => {
       .style("text-anchor", "end")
       .attr("dx", "-.8em")
       .attr("dy", ".15em")
-      .attr("transform", "rotate(-45)");
+      .attr("transform", "rotate(-35)"); // Reduced rotation angle to save vertical space
 
+  // Y-Axis
   svg.append("g")
     .attr("transform", `translate(${MARGINS.left},0)`)
-    .call(d3.axisLeft(yScale).ticks(5));
+    .call(d3.axisLeft(yScale).ticks(6).tickFormat(d3.format("~s"))); // Compact number format (e.g., 10k)
     
   // 6. Legend
+  // Positioned inside the chart area (top right) to save margin space
   const legend = svg.append("g")
-    .attr("transform", `translate(${WIDTH - 100}, ${MARGINS.top})`);
+    .attr("transform", `translate(${WIDTH - 120}, ${MARGINS.top})`);
     
   legend.append("text")
     .attr("x", 0)
