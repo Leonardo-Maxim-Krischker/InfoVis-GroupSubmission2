@@ -42,7 +42,6 @@ async function initMap(containerId, clickCallback) {
 
     const container = d3.select(containerId);
     
-    // Ensure the container is empty before appending to avoid duplicates on reload
     container.selectAll("svg").remove();
 
     svg = container.append("svg")
@@ -57,32 +56,27 @@ async function initMap(containerId, clickCallback) {
 
     svg.call(d3.zoom().scaleExtent([1, 8]).on("zoom", (event) => g.attr("transform", event.transform)));
 
-    // Setup Map Metric Dropdown
     const sel = document.getElementById("metricSelect");
     if (sel) {
         sel.innerHTML = METRICS.map(m => `<option value="${m.key}">${m.label}</option>`).join("");
         sel.addEventListener("change", () => {
             mapMetric = sel.value;
-            // Trigger update in manager
             d3.select("body").dispatch("mapMetricChanged"); 
         });
     }
 }
 
 // 2. Update Map Visuals (Called by Manager)
-// Accepts stateStats (Map) and selectedStatesSet (Set of strings)
-function updateMapVisuals(stateStats, selectedStatesSet) {
+// Added totalAccidents argument for % calculation
+function updateMapVisuals(stateStats, selectedStatesSet, totalAccidents) {
     const metricDef = METRICS.find(m => m.key === mapMetric);
     
-    // Calculate Color Scale
     const cleanVals = Array.from(stateStats.values()).map(s => s[mapMetric]).filter(v => v != null);
     const extent = d3.extent(cleanVals);
     const color = d3.scaleSequential(metricDef.palette).domain(extent[0] === undefined ? [0,1] : extent);
 
-    // Update Legend
     renderLegend(color, metricDef.label, color.domain()[0], color.domain()[1], metricDef.format);
     
-    // Draw/Update States
     g.selectAll("path.state")
         .data(statesGeo, d => d.id)
         .join("path")
@@ -98,6 +92,14 @@ function updateMapVisuals(stateStats, selectedStatesSet) {
             const s = stateStats.get(abbr);
             const isSelected = selectedStatesSet.has(abbr);
             
+            // Calculate % of total
+            const val = s ? s[mapMetric] : 0;
+            const total = (mapMetric === "accidents") ? totalAccidents : 0; // % only meaningful for total count usually, or normalize logic if needed
+            // If metric is nightAcc, percent of national Night Acc? For now assume totalAccidents passed matches the metric scope
+            
+            // Calculating simple share of the passed total (which matches current filter scope)
+            const pct = totalAccidents > 0 ? (val / totalAccidents * 100).toFixed(1) : "0.0";
+
             const tooltip = d3.select("#tooltip");
             
             tooltip.style("opacity", 1)
@@ -107,7 +109,8 @@ function updateMapVisuals(stateStats, selectedStatesSet) {
                     <div><strong>${abbrToName[abbr] || "Unknown"} (${abbr})</strong></div>
                     <div class="muted">${regionOf(abbr)}</div>
                     <hr style="margin:5px 0; border:0; border-top:1px solid #eee;">
-                    <div>${metricDef.label}: <strong>${s ? metricDef.format(s[mapMetric]) : "N/A"}</strong></div>
+                    <div>${metricDef.label}: <strong>${s ? metricDef.format(val) : "0"}</strong></div>
+                    <div class="muted" style="font-size:11px;">(${pct}% of Country)</div>
                     ${isSelected ? '<div style="color:#2563eb; font-weight:bold; font-size:10px; margin-top:5px;">● Selected</div>' : '<div class="muted" style="font-size:10px; margin-top:5px;">Click to select</div>'}
                 `);
         })
@@ -117,33 +120,27 @@ function updateMapVisuals(stateStats, selectedStatesSet) {
             const abbr = fipsToAbbr[d.id];
             const s = stateStats.get(abbr);
             
-            // 1. Missing Data logic
             if (!s) return "#e5e7eb";
             
-            // 2. Highlighting logic
-            // If the set has items, and this state is NOT in it -> Fade it out
+            // Fading logic for unselected states
             if (selectedStatesSet.size > 0 && !selectedStatesSet.has(abbr)) {
-                return "#f3f4f6"; // Very light grey
+                return "#f3f4f6"; 
             }
             
-            // 3. Otherwise show data color
             return color(s[mapMetric]);
         })
         .attr("stroke", d => {
             const abbr = fipsToAbbr[d.id];
-            // Dark stroke if selected
             return selectedStatesSet.has(abbr) ? "#1f2937" : "#fff";
         })
         .attr("stroke-width", d => {
             const abbr = fipsToAbbr[d.id];
-            // Thick stroke if selected
             return selectedStatesSet.has(abbr) ? 2 : 0.5;
         });
 }
 
-// Internal Helpers
 function renderLegend(colorScale, label, min, max, fmt) {
-    const div = document.getElementById("legend"); // Matches new HTML ID
+    const div = document.getElementById("legend");
     if (!div) return;
     
     div.innerHTML = "";

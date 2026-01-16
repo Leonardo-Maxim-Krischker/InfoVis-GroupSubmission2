@@ -22,20 +22,18 @@
 
   <main class="dashboard-grid">
     
-    <div class="card" id="map-container" style="padding: 0; overflow: hidden; position: relative;">
+    <div class="card" id="map-container">
       <div id="legend" class="map-legend-overlay"></div>
       <div id="chart" style="width: 100%; height: 100%; border: none;"></div>
     </div>
 
     <div class="card control-panel">
-      
       <div class="panel-split">
-        
         <div class="panel-section filters-section">
           <h2>Dashboard Filters</h2>
           
           <div class="control-group">
-            <label>Date Range</label>
+            <label>Date Range (Global)</label>
             <div class="date-inputs">
                 <input type="date" id="dateStart">
                 <span>-</span>
@@ -45,7 +43,7 @@
 
           <div class="control-group">
             <label>Region Grouping</label>
-            <select id="regionSelect" style="width: 100%;">
+            <select id="regionSelect">
                 <option value="Manual">Manual (Click Map)</option>
                 <option disabled>--- Standard Federal ---</option>
                 <option value="Region 1">Region 1 (New England)</option>
@@ -68,26 +66,55 @@
 
           <div class="control-group">
             <label>Weather Conditions</label>
-            <select id="weatherSelect" style="width: 100%;">
+            <select id="weatherSelect">
                 <option value="" disabled selected>+ Add Condition...</option>
             </select>
             <div id="weatherTags"></div> 
-            <div class="muted" style="font-size: 10px; margin-top: 2px;">Select to add, click tag to remove.</div>
+            <div class="muted" style="font-size: 0.625rem; margin-top: 2px;">Select to add, click tag to remove.</div>
+          </div>
+
+          <div class="control-group" style="margin-top: 10px; padding-top:10px; border-top: 1px dashed #eee;">
+            <label>Trend Y-Axis Metric</label>
+            <select id="trendMetricSelect"></select>
           </div>
 
           <div class="control-group">
             <label>Map Color Metric</label>
-            <select id="metricSelect" style="width: 100%;"></select>
+            <select id="metricSelect"></select>
           </div>
+
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+
+          <div class="control-group">
+            <label>Analysis Mode</label>
+            <select id="trendModeSelect">
+                <option value="state_severity">Compare States (Severity)</option>
+                <option value="state_count">Compare States (Count)</option>
+                <option value="weather_severity">Compare Weather (Severity)</option>
+                <option value="weather_count">Compare Weather (Count)</option>
+            </select>
+            <div class="muted" style="font-size: 10px; margin-top: 4px; line-height: 1.3;">
+                Select what to compare (lines) and which metric to visualize (Y-axis).
+            </div>
+          </div>
+
         </div>
 
         <div class="panel-section info-section">
+          
           <h2>Selected Region</h2>
           <div id="selectedBox" class="selectedBox">
             <div class="muted">Click a state on the map to see details.</div>
           </div>
-        </div>
 
+          <hr style="border: 0; border-top: 1px dashed #d1d5db; margin: 15px 0;">
+
+          <h2>Selected Weather</h2>
+          <div id="selectedWeatherBox" class="selectedBox">
+            <div class="muted">All weather conditions included.</div>
+          </div>
+
+        </div>
       </div>
     </div>
 
@@ -96,7 +123,7 @@
     </div>
 
     <div class="card detail-chart" id="line-chart">
-      <h2>Monthly Trend (Selected Region)</h2>
+       <h2>Regional Trends (2019-2023)</h2>
     </div>
 
   </main>
@@ -105,7 +132,7 @@
 
   <script src="us-map-chart.js"></script>
   <script src="stacked-bar-chart.js"></script>
-  <script src="line-chart.js"></script>
+  <script src="regional-trends.js"></script>
   <script src="dashboard-manager.js"></script>
 </body>
 </html>
