@@ -1,37 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Traffic Accident Analysis Dashboard</title>
-    <link rel="stylesheet" type="text/css" href="./style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>US Accidents Analysis</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
 </head>
+
 <body>
-    <h1>Group V1: Traffic Accident Analysis Dashboard</h1>
-    <h2>Members: Leo, Marin, Vasin</h2>
-    <div class="responsive-svg-container" id="controls">
-        <label for="yearSlider">Analysis Year</label>
-        <input id="yearSlider" type="range" value="2020" min="2010" max="2020" oninput="yearText.value=yearSlider.value" />
-        <input id="yearText" type="number" value="2020" min="2010" max="2020" oninput="yearSlider.value=yearText.value" disabled />
-        
-        <label for="sort" style="margin-left:30px">Sort Data</label>
-        <select name="sort" id="sort">
-            <option value="alphabet">Alphabetical</option>
-            <option value="pctAsce">Accidents (Ascending)</option>
-            <option value="pctDesc">Accidents (Descending)</option>
-        </select>
+  <header class="header">
+    <div>
+      <h1>US Traffic Accidents Analysis (2019–2023)</h1>
+      <p class="sub">
+        Filter by Year &rarr; Click State to Filter Details &rarr; Hover for Info
+      </p>
     </div>
 
-    <div id="map-chart" class="responsive-svg-container"></div>
-    <div id="line-chart" class="responsive-svg-container"></div>
-    <div id="bar-chart" class="responsive-svg-container"></div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <div class="controls">
+      <label class="control">
+        <span>Selected Year: <strong id="yearDisplay">2021</strong></span>
+        <input type="range" id="yearSlider" min="2019" max="2023" step="1" value="2021" style="width: 200px;">
+      </label>
 
-    <script src="./us-map-chart.js"></script>
-    <script src="./line-chart.js"></script>
-    <script src="./stacked-bar-chart.js"></script>
+      <label class="control">
+        <span>Map Metric</span>
+        <select id="metricSelect"></select>
+      </label>
+    </div>
+  </header>
 
-    <script src="./dashboard-manager.js"></script>
+  <main class="wrap">
+    <div id="map-section">
+      <div id="chart"></div> <aside class="side">
+        <div class="card">
+          <h2>Selected Region</h2>
+          <div id="selectedBox" class="selectedBox">
+            <div class="muted">Click a state on the map to pin it here and filter the charts below.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Map Legend</h2>
+          <div id="legend"></div>
+        </div>
+      </aside>
+    </div>
+
+    <div id="details-section">
+      <div class="card detail-chart" id="bar-chart">
+        <h2>Accidents by Weather & Severity</h2>
+        </div>
+      <div class="card detail-chart" id="line-chart">
+        <h2>Monthly Trend (Selected Region)</h2>
+        </div>
+    </div>
+  </main>
+
+  <div id="tooltip" class="tooltip" style="opacity:0;"></div>
+
+  <script src="us-map-chart.js"></script>
+  <script src="stacked-bar-chart.js"></script>
+  <script src="line-chart.js"></script>
+  <script src="dashboard-manager.js"></script>
 </body>
 </html>
